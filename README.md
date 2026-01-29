@@ -1,8 +1,10 @@
 # Claude-Supermemory
 
-A Claude Code plugin that gives your AI persistent memory across sessions using [Supermemory](https://supermemory.ai).
+<img width="1386" height="258" alt="Screenshot 2026-01-28 at 11 34 13 PM" src="https://github.com/user-attachments/assets/a692791a-a054-495a-ab53-45f1071ff26f" />
 
+A Claude Code plugin that gives your AI persistent memory across sessions using [Supermemory](https://supermemory.ai).
 Your agent remembers what you worked on - across sessions, across projects.
+
 
 ## Features
 
