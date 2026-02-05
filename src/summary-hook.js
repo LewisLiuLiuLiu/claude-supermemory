@@ -3,9 +3,9 @@ const {
   PERSONAL_ENTITY_CONTEXT,
 } = require('./lib/supermemory-client');
 const { getContainerTag, getProjectName } = require('./lib/container-tag');
-const { loadSettings, getApiKey, debugLog } = require('./lib/settings');
+const { loadSettings, getApiKey, debugLog, getSignalConfig } = require('./lib/settings');
 const { readStdin, writeOutput } = require('./lib/stdin');
-const { formatNewEntries } = require('./lib/transcript-formatter');
+const { formatNewEntries, formatSignalEntries } = require('./lib/transcript-formatter');
 
 async function main() {
   const settings = loadSettings();
@@ -32,7 +32,20 @@ async function main() {
       return;
     }
 
-    const formatted = formatNewEntries(transcriptPath, sessionId, cwd);
+    const signalConfig = getSignalConfig(cwd);
+    const useSignalExtraction = signalConfig.enabled;
+
+    debugLog(settings, 'Signal extraction', { enabled: useSignalExtraction });
+
+    let formatted;
+    if (useSignalExtraction) {
+      formatted = formatSignalEntries(transcriptPath, sessionId, cwd);
+      debugLog(settings, 'Signal extraction result', {
+        hasContent: !!formatted,
+      });
+    } else {
+      formatted = formatNewEntries(transcriptPath, sessionId, cwd);
+    }
 
     if (!formatted) {
       debugLog(settings, 'No new content to save');

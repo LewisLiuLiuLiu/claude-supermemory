@@ -29,6 +29,14 @@ function getContainerTag(cwd) {
   return `claudecode_project_${sha256(basePath)}`;
 }
 
+function sanitizeRepoName(name) {
+  return name
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, '_')
+    .replace(/_+/g, '_')
+    .replace(/^_|_$/g, '');
+}
+
 function getRepoContainerTag(cwd) {
   const projectConfig = loadProjectConfig(cwd);
   if (projectConfig?.repoContainerTag) {
@@ -36,7 +44,8 @@ function getRepoContainerTag(cwd) {
   }
   const gitRoot = getGitRoot(cwd);
   const basePath = gitRoot || cwd;
-  return `repo_${sha256(basePath)}`;
+  const repoName = basePath.split('/').pop() || 'unknown';
+  return `repo_${sanitizeRepoName(repoName)}`;
 }
 
 function getProjectName(cwd) {

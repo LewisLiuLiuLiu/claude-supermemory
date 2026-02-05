@@ -15,6 +15,27 @@ const DEFAULT_SETTINGS = {
   maxProfileItems: 5,
   debug: false,
   injectProfile: true,
+  signalExtraction: false,
+  signalKeywords: [
+    'remember',
+    'implementation',
+    'refactor',
+    'architecture',
+    'decision',
+    'important',
+    'bug',
+    'fix',
+    'solved',
+    'solution',
+    'pattern',
+    'approach',
+    'design',
+    'tradeoff',
+    'migrate',
+    'upgrade',
+    'deprecate',
+  ],
+  signalTurnsBefore: 3,
 };
 
 function ensureSettingsDir() {
@@ -87,6 +108,31 @@ function shouldIncludeTool(toolName, includeList) {
   return includeList.includes(toolName.toLowerCase());
 }
 
+function getSignalConfig(cwd) {
+  const settings = loadSettings();
+  const projectConfig = loadProjectConfig(cwd || process.cwd());
+
+  const globalEnabled = settings.signalExtraction || false;
+  const projectEnabled = projectConfig?.signalExtraction;
+
+  const enabled =
+    projectEnabled !== undefined ? projectEnabled : globalEnabled;
+
+  const globalKeywords = settings.signalKeywords || DEFAULT_SETTINGS.signalKeywords;
+  const projectKeywords = projectConfig?.signalKeywords || [];
+
+  const keywords = [...new Set([...globalKeywords, ...projectKeywords])].map(
+    (k) => k.toLowerCase(),
+  );
+
+  const turnsBefore =
+    projectConfig?.signalTurnsBefore ||
+    settings.signalTurnsBefore ||
+    DEFAULT_SETTINGS.signalTurnsBefore;
+
+  return { enabled, keywords, turnsBefore };
+}
+
 module.exports = {
   SETTINGS_DIR,
   SETTINGS_FILE,
@@ -97,4 +143,5 @@ module.exports = {
   debugLog,
   getIncludeTools,
   shouldIncludeTool,
+  getSignalConfig,
 };
