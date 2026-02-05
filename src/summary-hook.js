@@ -3,9 +3,17 @@ const {
   PERSONAL_ENTITY_CONTEXT,
 } = require('./lib/supermemory-client');
 const { getContainerTag, getProjectName } = require('./lib/container-tag');
-const { loadSettings, getApiKey, debugLog, getSignalConfig } = require('./lib/settings');
+const {
+  loadSettings,
+  getApiKey,
+  debugLog,
+  getSignalConfig,
+} = require('./lib/settings');
 const { readStdin, writeOutput } = require('./lib/stdin');
-const { formatNewEntries, formatSignalEntries } = require('./lib/transcript-formatter');
+const {
+  formatNewEntries,
+  formatSignalEntries,
+} = require('./lib/transcript-formatter');
 
 async function main() {
   const settings = loadSettings();

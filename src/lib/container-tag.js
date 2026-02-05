@@ -54,23 +54,10 @@ function getProjectName(cwd) {
   return basePath.split('/').pop() || 'unknown';
 }
 
-function getUserContainerTag() {
-  try {
-    const email = execSync('git config user.email', {
-      encoding: 'utf-8',
-      stdio: ['pipe', 'pipe', 'pipe'],
-    }).trim();
-    if (email) return `claudecode_user_${sha256(email)}`;
-  } catch {}
-  const username = process.env.USER || process.env.USERNAME || 'anonymous';
-  return `claudecode_user_${sha256(username)}`;
-}
-
 module.exports = {
   sha256,
   getGitRoot,
   getContainerTag,
   getRepoContainerTag,
   getProjectName,
-  getUserContainerTag,
 };

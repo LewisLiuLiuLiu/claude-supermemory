@@ -1,7 +1,11 @@
 const fs = require('node:fs');
 const path = require('node:path');
 const os = require('node:os');
-const { getIncludeTools, shouldIncludeTool, getSignalConfig } = require('./settings');
+const {
+  getIncludeTools,
+  shouldIncludeTool,
+  getSignalConfig,
+} = require('./settings');
 
 const MAX_TOOL_RESULT_LENGTH = 500;
 const TRACKER_DIR = path.join(os.homedir(), '.supermemory-claude', 'trackers');
@@ -411,7 +415,11 @@ function formatSignalEntries(transcriptPath, sessionId, cwd) {
     return null;
   }
 
-  const turnsToFormat = getTurnsAroundSignals(turns, signalIndices, turnsBefore);
+  const turnsToFormat = getTurnsAroundSignals(
+    turns,
+    signalIndices,
+    turnsBefore,
+  );
 
   if (turnsToFormat.length === 0) return null;
 

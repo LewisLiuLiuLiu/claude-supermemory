@@ -8,6 +8,16 @@ const {
 const DEFAULT_PROJECT_ID = 'claudecode_default';
 const API_URL = process.env.SUPERMEMORY_API_URL || 'https://api.supermemory.ai';
 
+function dedupe(items, getKey = (x) => x) {
+  const seen = new Set();
+  return items.filter((item) => {
+    const key = String(getKey(item)).toLowerCase().trim();
+    if (!key || seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
 const PERSONAL_ENTITY_CONTEXT = `Developer coding session transcript. Focus on USER message and intent.
 
 RULES:
@@ -95,14 +105,15 @@ class SupermemoryClient {
       limit: options.limit || 10,
       searchMode: options.searchMode || 'hybrid',
     });
+    const mapped = result.results.map((r) => ({
+      memory: r.content || r.memory || r.context || '',
+      chunk: r.chunk,
+      metadata: r.metadata,
+      updatedAt: r.updatedAt,
+      similarity: r.similarity,
+    }));
     return {
-      results: result.results.map((r) => ({
-        id: r.id,
-        memory: r.content || r.memory || r.context || '',
-        similarity: r.similarity,
-        title: r.title,
-        content: r.content,
-      })),
+      results: dedupe(mapped, (r) => r.memory),
       total: result.total,
       timing: result.timing,
     };
@@ -113,23 +124,39 @@ class SupermemoryClient {
       containerTag: containerTag || this.containerTag,
       q: query,
     });
+
+    // Dedupe across static, dynamic, and search results
+    const seen = new Set();
+    const dedupeWithSeen = (items, getKey = (x) => x) =>
+      items.filter((item) => {
+        const key = String(getKey(item)).toLowerCase().trim();
+        if (!key || seen.has(key)) return false;
+        seen.add(key);
+        return true;
+      });
+
+    const staticFacts = dedupeWithSeen(result.profile?.static || []);
+    const dynamicFacts = dedupeWithSeen(result.profile?.dynamic || []);
+
+    let searchResults;
+    if (result.searchResults) {
+      const mapped = result.searchResults.results.map((r) => ({
+        id: r.id,
+        memory: r.content || r.context || '',
+        similarity: r.similarity,
+        title: r.title,
+        updatedAt: r.updatedAt,
+      }));
+      searchResults = {
+        results: dedupeWithSeen(mapped, (r) => r.memory),
+        total: result.searchResults.total,
+        timing: result.searchResults.timing,
+      };
+    }
+
     return {
-      profile: {
-        static: result.profile?.static || [],
-        dynamic: result.profile?.dynamic || [],
-      },
-      searchResults: result.searchResults
-        ? {
-            results: result.searchResults.results.map((r) => ({
-              id: r.id,
-              memory: r.content || r.context || '',
-              similarity: r.similarity,
-              title: r.title,
-            })),
-            total: result.searchResults.total,
-            timing: result.searchResults.timing,
-          }
-        : undefined,
+      profile: { static: staticFacts, dynamic: dynamicFacts },
+      searchResults,
     };
   }
 }

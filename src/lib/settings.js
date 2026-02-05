@@ -115,10 +115,10 @@ function getSignalConfig(cwd) {
   const globalEnabled = settings.signalExtraction || false;
   const projectEnabled = projectConfig?.signalExtraction;
 
-  const enabled =
-    projectEnabled !== undefined ? projectEnabled : globalEnabled;
+  const enabled = projectEnabled !== undefined ? projectEnabled : globalEnabled;
 
-  const globalKeywords = settings.signalKeywords || DEFAULT_SETTINGS.signalKeywords;
+  const globalKeywords =
+    settings.signalKeywords || DEFAULT_SETTINGS.signalKeywords;
   const projectKeywords = projectConfig?.signalKeywords || [];
 
   const keywords = [...new Set([...globalKeywords, ...projectKeywords])].map(
